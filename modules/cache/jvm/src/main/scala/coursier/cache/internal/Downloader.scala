@@ -1,7 +1,7 @@
 package coursier.cache.internal
 
 import java.io.{Serializable => _, _}
-import java.net.{HttpURLConnection, URLConnection, MalformedURLException}
+import java.net.{HttpURLConnection, URLConnection, URLStreamHandlerFactory, MalformedURLException}
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.{AccessDeniedException, Files, StandardCopyOption, StandardOpenOption}
 import java.time.Clock
@@ -44,6 +44,7 @@ import scala.util.control.NonFatal
   bufferSize: Int = CacheDefaults.bufferSize,
   @since("2.0.16")
     classLoaders: Seq[ClassLoader] = Nil,
+  customHandlerFactory: Option[URLStreamHandlerFactory] = None,
   @since("2.1.0-RC3")
     clock: Clock = Clock.systemDefaultZone(),
   @since("2.1.11")
@@ -102,6 +103,7 @@ import scala.util.control.NonFatal
           .withMethod("HEAD")
           .withMaxRedirectionsOpt(maxRedirections)
           .withClassLoaders(classLoaders)
+          .withCustomHandlerFactory(customHandlerFactory)
           .connection()
 
         conn match {
@@ -235,6 +237,7 @@ import scala.util.control.NonFatal
           .withMethod("GET")
           .withMaxRedirectionsOpt(maxRedirections)
           .withClassLoaders(classLoaders)
+          .withCustomHandlerFactory(customHandlerFactory)
           .connectionMaybePartial()
         conn = conn0
 
@@ -344,7 +347,8 @@ import scala.util.control.NonFatal
               sslSocketFactoryOpt,
               hostnameVerifierOpt,
               logger,
-              maxRedirections
+              maxRedirections,
+              customHandlerFactory
             ).toOption.flatten
           )
           for (o <- lenOpt; len <- o)
@@ -365,7 +369,8 @@ import scala.util.control.NonFatal
               sslSocketFactoryOpt,
               hostnameVerifierOpt,
               logger,
-              maxRedirections
+              maxRedirections,
+              customHandlerFactory
             ).toOption.flatten
           )
           for (o <- lenOpt; len <- o)
@@ -859,7 +864,8 @@ object Downloader {
     sslSocketFactoryOpt: Option[SSLSocketFactory],
     hostnameVerifierOpt: Option[HostnameVerifier],
     logger: CacheLogger,
-    maxRedirectionsOpt: Option[Int]
+    maxRedirectionsOpt: Option[Int],
+    customHandlerFactory: Option[URLStreamHandlerFactory] = None
   ): Either[ArtifactError, Option[Long]] = {
 
     var conn: URLConnection = null
@@ -874,6 +880,7 @@ object Downloader {
         .withHostnameVerifierOpt(hostnameVerifierOpt)
         .withMethod("HEAD")
         .withMaxRedirectionsOpt(maxRedirectionsOpt)
+        .withCustomHandlerFactory(customHandlerFactory)
         .connection()
 
       conn match {

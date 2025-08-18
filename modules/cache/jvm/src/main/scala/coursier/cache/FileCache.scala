@@ -16,6 +16,7 @@ import java.time.Clock
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import javax.net.ssl.{HostnameVerifier, SSLSocketFactory}
+import java.net.URLStreamHandlerFactory
 
 import coursier.cache.internal.{Downloader, DownloadResult, FileUtil, Retry}
 import coursier.credentials.{Credentials, DirectCredentials, FileCredentials}
@@ -50,6 +51,7 @@ import scala.util.control.NonFatal
   bufferSize: Int = CacheDefaults.bufferSize,
   @since("2.0.16")
     classLoaders: Seq[ClassLoader] = Nil,
+  customHandlerFactory: Option[URLStreamHandlerFactory] = None,
   @since("2.1.0-RC3")
     clock: Clock = Clock.systemDefaultZone(),
   @since("2.1.11")
@@ -128,6 +130,7 @@ import scala.util.control.NonFatal
       hostnameVerifierOpt,
       bufferSize,
       classLoaders,
+      customHandlerFactory,
       clock
     ).download
 

@@ -113,6 +113,23 @@ object CacheUrl {
   def url(s: String): URL =
     new URL(null, s, handlerFor(s, Nil).orNull)
 
+  def url(s: String, customHandlerFactory: Option[URLStreamHandlerFactory], classLoaders: Seq[ClassLoader] = Nil): URL = {
+    val protocol = s.takeWhile(_ != ':')
+    
+    // Try custom handler factory first
+    val customHandler = customHandlerFactory.flatMap { factory =>
+      try Some(factory.createURLStreamHandler(protocol))
+      catch {
+        case _: Exception => None
+      }
+    }
+    
+    // Fall back to existing logic if no custom handler or custom handler failed
+    val handler = customHandler.orElse(handlerFor(s, classLoaders))
+    
+    new URL(null, s, handler.orNull)
+  }
+
   @deprecated("Use coursier.core.Authentication.basicAuthenticationEncode", "2.0.0-RC3")
   private[coursier] def basicAuthenticationEncode(user: String, password: String): String =
     Base64.getEncoder.encodeToString(
@@ -262,7 +279,8 @@ object CacheUrl {
       method,
       maxRedirectionsOpt = maxRedirectionsOpt,
       None,
-      Nil
+      Nil,
+      None
     ).connection()
 
   private[cache] final case class Args(
@@ -280,7 +298,8 @@ object CacheUrl {
     authRealm: Option[String],
     redirectionCount: Int,
     maxRedirectionsOpt: Option[Int],
-    classLoaders: Seq[ClassLoader]
+    classLoaders: Seq[ClassLoader],
+    customHandlerFactory: Option[URLStreamHandlerFactory] = None
   )
 
   @deprecated(
@@ -311,7 +330,8 @@ object CacheUrl {
       method,
       maxRedirectionsOpt,
       None,
-      Nil
+      Nil,
+      None
     ).connectionMaybePartial()
 
   @tailrec
@@ -324,7 +344,7 @@ object CacheUrl {
     val res: Either[Args, (URLConnection, Boolean)] =
       try {
         conn = {
-          val jnUrl = url(url0, args.classLoaders)
+          val jnUrl = url(url0, args.customHandlerFactory, args.classLoaders)
           proxyOpt match {
             case None        => jnUrl.openConnection()
             case Some(proxy) => jnUrl.openConnection(proxy)

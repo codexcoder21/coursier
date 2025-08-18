@@ -1,6 +1,6 @@
 package coursier.cache
 
-import java.net.{Proxy, URLConnection}
+import java.net.{Proxy, URLConnection, URLStreamHandlerFactory}
 import javax.net.ssl.{HostnameVerifier, SSLSocketFactory}
 
 import coursier.core.Authentication
@@ -21,7 +21,8 @@ import dataclass.data
   maxRedirectionsOpt: Option[Int] = Some(20),
   proxy: Option[Proxy] = None,
   @since("2.0.16")
-    classLoaders: Seq[ClassLoader] = Nil
+    classLoaders: Seq[ClassLoader] = Nil,
+  customHandlerFactory: Option[URLStreamHandlerFactory] = None
 ) {
   // format: on
 
@@ -47,6 +48,7 @@ import dataclass.data
       None,
       redirectionCount = 0,
       maxRedirectionsOpt,
-      classLoaders
+      classLoaders,
+      customHandlerFactory
     ))
 }

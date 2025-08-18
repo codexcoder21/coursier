@@ -1,6 +1,7 @@
 package coursier.cli.fetch
 
 import java.io.{File, PrintStream}
+import java.net.URLStreamHandlerFactory
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.concurrent.ExecutorService
@@ -22,7 +23,8 @@ object Fetch extends CoursierCommand[FetchOptions] {
     pool: ExecutorService,
     args: Seq[String],
     stdout: PrintStream = System.out,
-    stderr: PrintStream = System.err
+    stderr: PrintStream = System.err,
+    customHandlerFactory: Option[URLStreamHandlerFactory] = None
   ): Task[(Resolution, Option[String], Option[String], Seq[(Artifact, File)])] = {
 
     val resolveTask = coursier.cli.resolve.Resolve.task(
@@ -36,7 +38,7 @@ object Fetch extends CoursierCommand[FetchOptions] {
 
     val logger = params.resolve.output.logger()
 
-    val cache = params.resolve.cache.cache(pool, logger)
+    val cache = params.resolve.cache.cache(pool, logger).withCustomHandlerFactory(customHandlerFactory)
 
     for {
       t <- resolveTask
@@ -96,7 +98,7 @@ object Fetch extends CoursierCommand[FetchOptions] {
         val initialRepositories = initialParams.resolve.repositories.repositories
         val channels            = initialParams.channel.channels
         pool = Sync.fixedThreadPool(initialParams.resolve.cache.parallel)
-        val cache = initialParams.resolve.cache.cache(pool, initialParams.resolve.output.logger())
+        val cache = initialParams.resolve.cache.cache(pool, initialParams.resolve.output.logger()).withCustomHandlerFactory(customHandlerFactory)
         val channels0 = Channels(channels, initialRepositories, cache)
         val res       = Resolve.handleApps(options, args.all, channels0)(_.addApp(_))
         res

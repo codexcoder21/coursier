@@ -38,10 +38,10 @@ object Deps {
     def jsoup          = ivy"org.jsoup:jsoup:1.20.1"
     def logbackClassic = ivy"ch.qos.logback:logback-classic:1.5.18"
     def macroParadise  = ivy"org.scalamacros:::paradise:2.1.1"
-    def mdoc           = ivy"org.scalameta::mdoc:2.7.0"
+    def mdoc           = ivy"org.scalameta::mdoc:2.7.2"
     def noCrcZis       = ivy"io.github.alexarchambault.scala-cli.tmp:zip-input-stream:0.1.1"
     def osLib          = ivy"com.lihaoyi::os-lib:0.11.5"
-    def plexusArchiver = ivy"org.codehaus.plexus:plexus-archiver:4.10.0"
+    def plexusArchiver = ivy"org.codehaus.plexus:plexus-archiver:4.10.1"
     // plexus-archiver needs its loggers
     def plexusContainerDefault = ivy"org.codehaus.plexus:plexus-container-default:2.1.1"
       .exclude("junit" -> "junit")
@@ -70,12 +70,12 @@ object Deps {
     def svm                      = ivy"org.graalvm.nativeimage:svm:21.3.15"
     def tika                     = ivy"org.apache.tika:tika-core:3.2.2"
     def ujson                    = ivy"com.lihaoyi::ujson:4.2.1"
-    def utest                    = ivy"com.lihaoyi::utest::0.8.9"
+    def utest                    = ivy"com.lihaoyi::utest::0.9.1"
     def versions                 = ivy"io.get-coursier::versions::0.5.1"
     def windowsAnsi              = ivy"io.github.alexarchambault.windows-ansi:windows-ansi:0.0.6"
     def windowsAnsiPs =
       ivy"io.github.alexarchambault.windows-ansi:windows-ansi-ps:${windowsAnsi.version}"
-    def zstdJni = ivy"com.github.luben:zstd-jni:1.5.7-3"
+    def zstdJni = ivy"com.github.luben:zstd-jni:1.5.7-4"
   }
 
   object Versions {
@@ -100,7 +100,7 @@ object Deps {
     def scala212 = "2.12.20"
     val all      = Seq(scala213, scala212)
 
-    def scalaJs = "1.18.1"
+    def scalaJs = "1.19.0"
   }
 
   object Docker {
